@@ -9,21 +9,28 @@ public class JobApplication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long jobId;
-    private String employeeEmail;
     private String status = "PENDING"; // PENDING, APPROVED, REJECTED
+
+    // Employee (Many applications → One employee)
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
+    private User employee;
+
+    // Job (Many applications → One job)
+    @ManyToOne
+    @JoinColumn(name = "job_id")
+    private Job job;
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Long getJobId() { return jobId; }
-    public void setJobId(Long jobId) { this.jobId = jobId; }
-
-    public String getEmployeeEmail() { return employeeEmail; }
-    public void setEmployeeEmail(String employeeEmail) { this.employeeEmail = employeeEmail; }
-
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-}
 
+    public User getEmployee() { return employee; }
+    public void setEmployee(User employee) { this.employee = employee; }
+
+    public Job getJob() { return job; }
+    public void setJob(Job job) { this.job = job; }
+}

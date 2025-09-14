@@ -45,9 +45,19 @@ public class EmployeeController {
             return "Access Denied! Only Employees can apply for jobs.";
         }
 
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found!"));
+
+        // Check if already applied
+        if (applicationRepository.findByEmployeeAndJob(loggedIn, job).isPresent()) {
+            return "You have already applied for this job!";
+        }
+
         JobApplication application = new JobApplication();
-        application.setJobId(jobId);
-        application.setEmployeeEmail(loggedIn.getEmail());
+        application.setJob(job);
+        application.setEmployee(loggedIn);
+        application.setStatus("PENDING");
+
         applicationRepository.save(application);
 
         return "Applied for Job ID: " + jobId + " successfully!";
@@ -64,7 +74,32 @@ public class EmployeeController {
             throw new RuntimeException("Access Denied! Only Employees can check applications.");
         }
 
-        return applicationRepository.findByEmployeeEmail(loggedIn.getEmail());
+        // Create a custom repository method for this:
+        return applicationRepository.findByEmployee(loggedIn);
+    }
+
+    // 4. Unenroll (withdraw) from a job application
+    @PutMapping("/applications/{applicationId}/withdraw")
+    public String withdrawApplication(@PathVariable Long applicationId, HttpSession session) {
+        User loggedIn = (User) session.getAttribute("user");
+        if (loggedIn == null) {
+            return "Please login first!";
+        }
+        if (!"EMPLOYEE".equals(loggedIn.getRole())) {
+            return "Access Denied! Only Employees can withdraw applications.";
+        }
+
+        JobApplication application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found!"));
+
+        // Ensure this application belongs to the logged-in employee
+        if (!application.getEmployee().getId().equals(loggedIn.getId())) {
+            return "You can only withdraw your own applications!";
+        }
+
+        application.setStatus("WITHDRAWN");
+        applicationRepository.save(application);
+
+        return "Successfully withdrawn from job application ID: " + applicationId;
     }
 }
-

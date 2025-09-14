@@ -8,10 +8,11 @@ import com.JobApplicationPortal.Job_portal.Repository.JobRepository;
 import com.JobApplicationPortal.Job_portal.Service.JobService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/employer")
@@ -26,7 +27,7 @@ public class EmployerController {
     @Autowired
     private JobApplicationRepository applicationRepository;
 
-    // 1. Create Job (Only Employer can access)
+    // 1. Create Job
     @PostMapping("/create-job")
     public String createJob(@RequestBody Job job, HttpSession session) {
         User loggedIn = (User) session.getAttribute("user");
@@ -37,70 +38,82 @@ public class EmployerController {
             return "Access Denied! Only Employers can create jobs.";
         }
 
-        // Set employer info in job
-        job.setEmployerEmail(loggedIn.getEmail());
+        job.setEmployer(loggedIn);
         jobService.createJob(job);
         return "Job created successfully by " + loggedIn.getName();
     }
 
-    // 2. View all applicants for employer's jobs
-    @GetMapping("/applicants")
-    public List<JobApplication> viewApplicants(HttpSession session) {
+    // 2. View applicants for a job
+    @GetMapping("/job/{jobId}/applicants")
+    public List<JobApplication> getApplicants(@PathVariable Long jobId, HttpSession session) {
         User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null) {
-            throw new RuntimeException("Please login first!");
-        }
-        if (!"EMPLOYER".equals(loggedIn.getRole())) {
-            throw new RuntimeException("Access Denied! Only Employers can view applicants.");
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) {
+            throw new RuntimeException("Access denied!");
         }
 
-        // Find jobs created by this employer
-        List<Job> jobs = jobRepository.findAll()
-                .stream()
-                .filter(job -> job.getEmployerEmail().equals(loggedIn.getEmail()))
-                .toList();
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found!"));
 
-        // Get jobIds
-        List<Long> jobIds = jobs.stream().map(Job::getId).toList();
+        // Only job owner can view applicants
+        if (!job.getEmployer().getId().equals(loggedIn.getId())) {
+            return (List<JobApplication>) ResponseEntity.status(403).body("You can only view applicants for your own jobs!");
+        }
 
-        // Find applications for those jobs
-        return applicationRepository.findAll()
-                .stream()
-                .filter(app -> jobIds.contains(app.getJobId()))
-                .collect(Collectors.toList());
+        List<JobApplication> applicants = applicationRepository.findByJob(job);
+
+        if (applicants == null || applicants.isEmpty()) {
+            return (List<JobApplication>) ResponseEntity.ok(Collections.emptyList()); // return []
+        }
+
+        return ResponseEntity.ok(applicants).getBody();
     }
 
-    // 3. Update application status (Approve/Reject)
-    @PutMapping("/applications/{applicationId}/status")
-    public String updateApplicationStatus(@PathVariable Long applicationId,
-                                          @RequestParam String status,
-                                          HttpSession session) {
+    // 3. Update application status
+    @PutMapping("/application/{applicationId}/status")
+    public JobApplication updateApplicationStatus(
+            @PathVariable Long applicationId,
+            @RequestParam String status,
+            HttpSession session) {
         User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null) {
-            return "Please login first!";
-        }
-        if (!"EMPLOYER".equals(loggedIn.getRole())) {
-            return "Access Denied! Only Employers can update applications.";
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) {
+            throw new RuntimeException("Access denied!");
         }
 
         JobApplication application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found!"));
 
-        // Check if this application belongs to employer's job
-        Job job = jobRepository.findById(application.getJobId())
+        if (!application.getJob().getEmployer().getId().equals(loggedIn.getId())) {
+            throw new RuntimeException("You can only update applications for your own jobs!");
+        }
+
+        if (!status.equals("APPROVED") && !status.equals("REJECTED") && !status.equals("PENDING")) {
+            throw new RuntimeException("Invalid status! Must be PENDING, APPROVED, or REJECTED.");
+        }
+
+        application.setStatus(status);
+        return applicationRepository.save(application);
+    }
+
+    // 4. Delete a job
+    @DeleteMapping("/delete-job/{jobId}")
+    public String deleteJob(@PathVariable Long jobId, HttpSession session) {
+        User loggedIn = (User) session.getAttribute("user");
+        if (loggedIn == null) {
+            return "Please login first!";
+        }
+        if (!"EMPLOYER".equals(loggedIn.getRole())) {
+            return "Access Denied! Only Employers can delete jobs.";
+        }
+
+        Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found!"));
 
-        if (!job.getEmployerEmail().equals(loggedIn.getEmail())) {
-            return "Access Denied! You can only update applications for your own jobs.";
+        // Ensure employer owns this job
+        if (!job.getEmployer().getId().equals(loggedIn.getId())) {
+            return "You can only delete jobs that you created!";
         }
 
-        if (!status.equalsIgnoreCase("APPROVED") && !status.equalsIgnoreCase("REJECTED")) {
-            return "Invalid status! Use APPROVED or REJECTED.";
-        }
-
-        application.setStatus(status.toUpperCase());
-        applicationRepository.save(application);
-
-        return "Application status updated to " + status;
+        jobRepository.delete(job);
+        return "Job with ID " + jobId + " deleted successfully!";
     }
 }

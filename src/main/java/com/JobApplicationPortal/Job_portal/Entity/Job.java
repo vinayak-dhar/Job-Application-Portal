@@ -2,6 +2,8 @@ package com.JobApplicationPortal.Job_portal.Entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "jobs")
 public class Job {
@@ -26,8 +28,14 @@ public class Job {
     private String salaryRange;
     private String jobType; // Full-time, Part-time, etc.
 
-    // Link to Employer
-    private String employerEmail;
+    // Employer (Many jobs → One Employer)
+    @ManyToOne
+    @JoinColumn(name = "employer_id")
+    private User employer;
+
+    // Applications
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
+    private List<JobApplication> applications;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -61,8 +69,14 @@ public class Job {
     public void setSalaryRange(String salaryRange) { this.salaryRange = salaryRange; }
 
     public String getJobType() { return jobType; }
-    public void setJobType(String jobType) { this.jobType = jobType; }
 
-    public String getEmployerEmail() { return employerEmail; }
-    public void setEmployerEmail(String employerEmail) { this.employerEmail = employerEmail; }
+    public User getEmployer() {
+        return employer;
+    }
+
+    public void setEmployer(User employer) {
+        this.employer = employer;
+    }
+
+    public void setJobType(String jobType) { this.jobType = jobType; }
 }

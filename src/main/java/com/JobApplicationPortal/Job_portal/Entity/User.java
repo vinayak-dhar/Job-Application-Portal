@@ -2,6 +2,8 @@ package com.JobApplicationPortal.Job_portal.Entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -18,6 +20,14 @@ public class User {
 
     // Role: ADMIN, EMPLOYER, EMPLOYEE
     private String role;
+
+    // Employer → Jobs
+    @OneToMany(mappedBy = "employer", cascade = CascadeType.ALL)
+    private List<Job> jobs;
+
+    // Employee → Applications
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    private List<JobApplication> applications;
 
     // Getters & Setters
     public Long getId() { return id; }

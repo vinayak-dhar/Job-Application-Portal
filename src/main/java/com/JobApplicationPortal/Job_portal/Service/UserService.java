@@ -18,11 +18,8 @@ public class UserService {
 
     // Login
     public User login(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        if (user != null && user.getPassword().equals(password)) {
-            return user; // login success
-        }
-        return null; // login failed
+        return userRepository.findByEmail(email)
+                .filter(u -> u.getPassword().equals(password))
+                .orElse(null); // return null if not found
     }
 }
-
