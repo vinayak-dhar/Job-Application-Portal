@@ -19,7 +19,7 @@
 <!-- Create Job Form -->
 <div class="form-container">
     <h2>Create Job</h2>
-    <form method="POST" action="/api/employer/create-job">
+    <form method="POST" th:action="@{/employer/create-job}">
         <input type="text" name="jobTitle" placeholder="Job Title" required>
         <input type="text" name="companyName" placeholder="Company Name" required>
         <input type="text" name="jobDescription" placeholder="Job Description" required>

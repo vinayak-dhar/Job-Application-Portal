@@ -8,14 +8,15 @@ import com.JobApplicationPortal.Job_portal.Repository.JobRepository;
 import com.JobApplicationPortal.Job_portal.Service.JobService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
 
 import java.util.Collections;
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/employer")
+@Controller
+@RequestMapping("/employer")
 public class EmployerController {
 
     @Autowired
@@ -27,57 +28,121 @@ public class EmployerController {
     @Autowired
     private JobApplicationRepository applicationRepository;
 
-    // 1. Create Job
+    // ------------------ Thymeleaf Views ------------------
+
+    @GetMapping("/dashboard")
+    public String employerDashboard(HttpSession session) {
+        User loggedIn = (User) session.getAttribute("user");
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) return "redirect:/login";
+        return "employer-dashboard";
+    }
+
+    @GetMapping("/create-job")
+    public String createJobForm(HttpSession session) {
+        User loggedIn = (User) session.getAttribute("user");
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) return "redirect:/login";
+        return "create-job";
+    }
+
     @PostMapping("/create-job")
+    public String createJobSubmit(@ModelAttribute Job job, HttpSession session) {
+        User loggedIn = (User) session.getAttribute("user");
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) return "redirect:/login";
+
+        job.setEmployer(loggedIn);
+        jobRepository.save(job);
+        return "redirect:/employer/my-jobs";
+    }
+
+    @GetMapping("/my-jobs")
+    public String myJobs(HttpSession session, Model model) {
+        User loggedIn = (User) session.getAttribute("user");
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) return "redirect:/login";
+
+        List<Job> jobs = jobRepository.findAll().stream()
+                .filter(j -> j.getEmployer().getId().equals(loggedIn.getId()))
+                .toList();
+        model.addAttribute("jobs", jobs);
+        return "my-jobs";
+    }
+
+    @GetMapping("/job/{jobId}/applicants")
+    public String viewApplicants(@PathVariable Long jobId, HttpSession session, Model model) {
+        User loggedIn = (User) session.getAttribute("user");
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) return "redirect:/login";
+
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found!"));
+
+        if (!job.getEmployer().getId().equals(loggedIn.getId())) return "redirect:/employer/my-jobs";
+
+        List<JobApplication> applicants = applicationRepository.findByJob(job);
+        model.addAttribute("job", job);
+        model.addAttribute("applicants", applicants);
+        return "applicants";
+    }
+
+    // Update applicant status
+    @PostMapping("/application/{id}/update-status")
+    public String updateApplicantStatusView(
+            @PathVariable Long id,
+            @RequestParam String status,
+            HttpSession session) {
+
+        User loggedIn = (User) session.getAttribute("user");
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) return "redirect:/login";
+
+        JobApplication application = applicationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Application not found!"));
+
+        if (!application.getJob().getEmployer().getId().equals(loggedIn.getId())) {
+            return "redirect:/employer/my-jobs";
+        }
+
+        application.setStatus(status);
+        applicationRepository.save(application);
+
+        return "redirect:/employer/job/" + application.getJob().getId() + "/applicants";
+    }
+
+    // ------------------ REST Endpoints ------------------
+
+    @ResponseBody
+    @PostMapping("/api/create-job")
     public String createJob(@RequestBody Job job, HttpSession session) {
         User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null) {
-            return "Please login first!";
-        }
-        if (!"EMPLOYER".equals(loggedIn.getRole())) {
-            return "Access Denied! Only Employers can create jobs.";
-        }
+        if (loggedIn == null) return "Please login first!";
+        if (!"EMPLOYER".equals(loggedIn.getRole())) return "Access Denied! Only Employers can create jobs.";
 
         job.setEmployer(loggedIn);
         jobService.createJob(job);
         return "Job created successfully by " + loggedIn.getName();
     }
 
-    // 2. View applicants for a job
-    @GetMapping("/job/{jobId}/applicants")
+    @ResponseBody
+    @GetMapping("/api/job/{jobId}/applicants")
     public List<JobApplication> getApplicants(@PathVariable Long jobId, HttpSession session) {
         User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) {
-            throw new RuntimeException("Access denied!");
-        }
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) throw new RuntimeException("Access denied!");
 
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found!"));
 
-        // Only job owner can view applicants
         if (!job.getEmployer().getId().equals(loggedIn.getId())) {
-            return (List<JobApplication>) ResponseEntity.status(403).body("You can only view applicants for your own jobs!");
+            throw new RuntimeException("You can only view applicants for your own jobs!");
         }
 
-        List<JobApplication> applicants = applicationRepository.findByJob(job);
-
-        if (applicants == null || applicants.isEmpty()) {
-            return (List<JobApplication>) ResponseEntity.ok(Collections.emptyList()); // return []
-        }
-
-        return ResponseEntity.ok(applicants).getBody();
+        return applicationRepository.findByJob(job);
     }
 
-    // 3. Update application status
-    @PutMapping("/application/{applicationId}/status")
-    public JobApplication updateApplicationStatus(
+    @ResponseBody
+    @PutMapping("/api/application/{applicationId}/status")
+    public JobApplication updateApplicationStatusApi(
             @PathVariable Long applicationId,
             @RequestParam String status,
             HttpSession session) {
         User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) {
-            throw new RuntimeException("Access denied!");
-        }
+        if (loggedIn == null || !"EMPLOYER".equals(loggedIn.getRole())) throw new RuntimeException("Access denied!");
 
         JobApplication application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found!"));
@@ -94,21 +159,16 @@ public class EmployerController {
         return applicationRepository.save(application);
     }
 
-    // 4. Delete a job
-    @DeleteMapping("/delete-job/{jobId}")
+    @ResponseBody
+    @DeleteMapping("/api/delete-job/{jobId}")
     public String deleteJob(@PathVariable Long jobId, HttpSession session) {
         User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null) {
-            return "Please login first!";
-        }
-        if (!"EMPLOYER".equals(loggedIn.getRole())) {
-            return "Access Denied! Only Employers can delete jobs.";
-        }
+        if (loggedIn == null) return "Please login first!";
+        if (!"EMPLOYER".equals(loggedIn.getRole())) return "Access Denied! Only Employers can delete jobs.";
 
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found!"));
 
-        // Ensure employer owns this job
         if (!job.getEmployer().getId().equals(loggedIn.getId())) {
             return "You can only delete jobs that you created!";
         }
