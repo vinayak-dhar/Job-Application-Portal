@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
+//@CrossOrigin(origins = "http://localhost:3000") // allow requests from Next.js
 public class UserController {
 
     @Autowired
@@ -21,13 +22,23 @@ public class UserController {
 
     // Login
     @PostMapping("/login")
-    public String login(@RequestBody User user, HttpSession session) {
-        User loggedIn = userService.login(user.getEmail(), user.getPassword());
+    public String loginSubmit(@RequestParam String email,
+                              @RequestParam String password,
+                              HttpSession session) {
+
+        User loggedIn = userService.login(email, password);
         if (loggedIn != null) {
-            session.setAttribute("user", loggedIn); // store in session
-            return "Login Successful! Welcome " + loggedIn.getRole();
+            session.setAttribute("user", loggedIn);
+
+            switch (loggedIn.getRole().toLowerCase()) {
+                case "admin": return "redirect:/admin/dashboard";
+                case "employer": return "redirect:/employer/dashboard";
+                case "employee": return "redirect:/employee/dashboard";
+            }
         }
-        return "Invalid email or password!";
+
+        // If login fails
+        return "redirect:/login?error=true";
     }
 
     // Check who is logged in

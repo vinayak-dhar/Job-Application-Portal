@@ -1,0 +1,126 @@
+/* General Reset */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #1f2937; /* text-gray-700 */
+    background-color: #ffffff;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.navbar .container {
+    max-width: 1024px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1rem;
+}
+.navbar .logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2563eb; /* blue-600 */
+    text-decoration: none;
+}
+.navbar .nav-links a {
+    margin-left: 1rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.navbar .nav-links .login-btn {
+    color: #111827; /* gray-900 */
+}
+.navbar .nav-links .login-btn:hover {
+    color: #2563eb;
+}
+.navbar .nav-links .signup-btn {
+    background-color: #2563eb;
+    color: white;
+    border-radius: 0.5rem;
+}
+.navbar .nav-links .signup-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* Landing Section */
+.landing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 5rem 1rem;
+}
+.landing h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+.landing .highlight {
+    color: #2563eb;
+}
+.landing p {
+    font-size: 1.125rem;
+    max-width: 600px;
+    color: #4b5563; /* gray-700 */
+}
+
+/* Footer */
+.footer {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #4b5563;
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 2.5rem;
+}
+
+
+/* Form container for Login/Signup pages */
+.form-container {
+    max-width: 400px;
+    margin: 5rem auto;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    color: #111827;
+}
+.form-container input, .form-container select {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    outline: none;
+    transition: border 0.3s;
+}
+.form-container input:focus, .form-container select:focus {
+    border-color: #2563eb; /* Same blue as landing page highlight */
+}
+.form-container button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.form-container button:hover {
+    background-color: #1d4ed8;
+}
+.form-container .error {
+    color: red;
+    text-align: center;
+    margin-bottom: 1rem;
+}

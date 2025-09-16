@@ -20,6 +20,6 @@ public class UserService {
     public User login(String email, String password) {
         return userRepository.findByEmail(email)
                 .filter(u -> u.getPassword().equals(password))
-                .orElse(null); // return null if not found
+                .orElse(null);
     }
 }
