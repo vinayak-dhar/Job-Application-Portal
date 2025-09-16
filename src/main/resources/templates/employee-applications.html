@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>My Applications</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         table {
             width: 80%;
@@ -34,6 +35,16 @@
     </style>
 </head>
 <body>
+<div class="navbar">
+    <div class="container">
+        <a href="/employee/dashboard" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/employee/dashboard" class="dashboard-btn">← Dashboard</a>
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</div>
+
 <section class="landing">
     <h1>My Applications</h1>
 
@@ -70,5 +81,8 @@
     </table>
 </section>
 
+<div class="footer">
+    <p>&copy; 2025 Job Portal. All rights reserved.</p>
+</div>
 </body>
 </html>
