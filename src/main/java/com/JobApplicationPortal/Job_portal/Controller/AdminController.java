@@ -75,47 +75,4 @@ public class AdminController {
         model.addAttribute("applications", applicationRepository.findAll());
         return "monitor-applications";
     }
-
-    // ------------------ REST Endpoints ------------------
-
-    @ResponseBody
-    @GetMapping("/api/users")
-    public List<User> getAllUsers(HttpSession session) {
-        User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null || !"ADMIN".equals(loggedIn.getRole())) {
-            throw new RuntimeException("Access denied!");
-        }
-        return userRepository.findAll();
-    }
-
-    @ResponseBody
-    @DeleteMapping("/api/users/{id}")
-    public String deleteUserApi(@PathVariable Long id, HttpSession session) {
-        User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null || !"ADMIN".equals(loggedIn.getRole())) {
-            throw new RuntimeException("Access denied!");
-        }
-        userRepository.deleteById(id);
-        return "User deleted successfully";
-    }
-
-    @ResponseBody
-    @GetMapping("/api/jobs")
-    public List<Job> getAllJobs(HttpSession session) {
-        User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null || !"ADMIN".equals(loggedIn.getRole())) {
-            throw new RuntimeException("Access denied!");
-        }
-        return jobRepository.findAll();
-    }
-
-    @ResponseBody
-    @GetMapping("/api/applications")
-    public List<JobApplication> getAllApplications(HttpSession session) {
-        User loggedIn = (User) session.getAttribute("user");
-        if (loggedIn == null || !"ADMIN".equals(loggedIn.getRole())) {
-            throw new RuntimeException("Access denied!");
-        }
-        return applicationRepository.findAll();
-    }
 }

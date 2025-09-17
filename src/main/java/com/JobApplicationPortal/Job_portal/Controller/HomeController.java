@@ -1,9 +1,6 @@
 package com.JobApplicationPortal.Job_portal.Controller;
 
 import com.JobApplicationPortal.Job_portal.Entity.User;
-import com.JobApplicationPortal.Job_portal.Repository.UserRepository;
-import com.JobApplicationPortal.Job_portal.Repository.JobRepository;
-import com.JobApplicationPortal.Job_portal.Repository.JobApplicationRepository;
 import com.JobApplicationPortal.Job_portal.Service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +15,6 @@ public class HomeController {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JobRepository jobRepository;
-
-    @Autowired
-    private JobApplicationRepository applicationRepository;
 
     // ---------------- Landing / Signup / Login ----------------
     @GetMapping("/")
