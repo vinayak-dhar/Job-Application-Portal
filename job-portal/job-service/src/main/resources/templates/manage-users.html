@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Users</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .user-table { width: 90%; margin: 2rem auto; border-collapse: collapse; }
+        .user-table th, .user-table td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
+        .user-table th { background-color: #f3f4f6; }
+        .delete-btn {
+            padding: 0.25rem 0.5rem;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        .delete-btn:hover { background-color: #b91c1c; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <a href="/admin/dashboard" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/admin/dashboard" class="dashboard-btn">← Dashboard</a>
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<h1 style="text-align:center; margin-top:2rem;">Manage Users</h1>
+
+<table class="user-table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.name}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:text="${user.role}"></td>
+        <td>
+            <form th:action="@{'/admin/delete-user/' + ${user.id}}" method="post">
+                <button class="delete-btn" type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<footer class="footer">
+    © <span id="year"></span> JobPortal. All rights reserved.
+</footer>
+<script>document.getElementById("year").innerText = new Date().getFullYear();</script>
+</body>
+</html>

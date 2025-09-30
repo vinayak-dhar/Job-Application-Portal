@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Jobs</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .job-card { background: #fff; border: 1px solid #e5e7eb; padding: 1.5rem; border-radius: 1rem; margin-bottom: 1rem; }
+        .job-card h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .job-card p { color: #4b5563; }
+        .job-actions button { margin-right: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-weight: 600; cursor: pointer; }
+        .view-btn { background-color: #22c55e; color: white; }
+        .view-btn:hover { background-color: #16a34a; }
+        .delete-btn { background-color: #ef4444; color: white; }
+        .delete-btn:hover { background-color: #b91c1c; }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="container">
+        <a href="/employer/dashboard" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/employer/dashboard" class="dashboard-btn">← Dashboard</a>
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="dashboard">
+    <h1>My Jobs</h1>
+
+    <!-- Thymeleaf loop to render all jobs -->
+    <div th:each="job : ${jobs}" class="job-card">
+        <h2 th:text="${job.jobTitle}">Job Title</h2>
+        <p th:text="${job.companyName}">Company Name</p>
+        <div class="job-actions">
+            <a th:href="@{'/employer/job/' + ${job.id} + '/applicants'}" class="view-btn">View Applicants</a>
+
+            <form th:action="@{'/employer/delete-job/' + ${job.id}}" method="post" style="display:inline">
+                <button type="submit" class="delete-btn">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(jobs)}">
+        <p>No jobs found. <a href="/employer/create-job">Create a new job</a>.</p>
+    </div>
+</div>
+
+
+<!-- Footer -->
+<footer class="footer">
+    © <span id="year"></span> JobPortal. All rights reserved.
+</footer>
+
+<script>
+    document.getElementById("year").innerText = new Date().getFullYear();
+</script>
+</body>
+</html>

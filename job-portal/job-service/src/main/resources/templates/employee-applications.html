@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Applications</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background: #f4f4f4;
+        }
+        .withdrawn {
+            color: gray;
+            font-style: italic;
+        }
+        button {
+            padding: 6px 12px;
+            border: none;
+            background-color: #e3342f;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #cc1f1a;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="container">
+        <a href="/employee/dashboard" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/employee/dashboard" class="dashboard-btn">← Dashboard</a>
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</div>
+
+<section class="landing">
+    <h1>My Applications</h1>
+
+    <!-- Flash messages -->
+    <div th:if="${success}" style="color:green; text-align:center; margin-bottom:1rem;">
+        <p th:text="${success}"></p>
+    </div>
+    <div th:if="${error}" style="color:red; text-align:center; margin-bottom:1rem;">
+        <p th:text="${error}"></p>
+    </div>
+
+    <table style="width:80%; margin:auto; border-collapse: collapse;">
+        <thead>
+        <tr style="background:#f3f4f6;">
+            <th style="padding:1rem; border:1px solid #ddd;">Job Title</th>
+            <th style="padding:1rem; border:1px solid #ddd;">Company</th>
+            <th style="padding:1rem; border:1px solid #ddd;">Status</th>
+            <th style="padding:1rem; border:1px solid #ddd;">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="app : ${applications}">
+            <td th:text="${app.job.jobTitle}" style="padding:1rem; border:1px solid #ddd;"></td>
+            <td th:text="${app.job.companyName}" style="padding:1rem; border:1px solid #ddd;"></td>
+            <td th:text="${app.status}" style="padding:1rem; border:1px solid #ddd;"></td>
+            <td style="padding:1rem; border:1px solid #ddd;">
+                <form th:action="@{'/employee/applications/' + ${app.id} + '/withdraw'}" method="post" th:if="${app.status != 'WITHDRAWN'}">
+                    <button type="submit">Withdraw</button>
+                </form>
+                <span th:if="${app.status == 'WITHDRAWN'}">Withdrawn</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<div class="footer">
+    <p>&copy; 2025 Job Portal. All rights reserved.</p>
+</div>
+</body>
+</html>

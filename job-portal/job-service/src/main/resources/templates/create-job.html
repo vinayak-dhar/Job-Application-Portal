@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Job</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="container">
+        <a href="/employer/dashboard" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/employer/dashboard" class="dashboard-btn">← Dashboard</a>
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Create Job Form -->
+<div class="form-container">
+    <h2>Create Job</h2>
+    <form method="POST" th:action="@{/employer/create-job}">
+        <input type="text" name="jobTitle" placeholder="Job Title" required>
+        <input type="text" name="companyName" placeholder="Company Name" required>
+        <input type="text" name="jobDescription" placeholder="Job Description" required>
+        <input type="text" name="jobLocation" placeholder="Job Location" required>
+        <input type="text" name="workplaceType" placeholder="Workplace Type" required>
+        <input type="text" name="skillsAndQualifications" placeholder="Skills & Qualifications" required>
+        <input type="text" name="experienceLevel" placeholder="Experience Level" required>
+        <input type="text" name="education" placeholder="Education" required>
+        <input type="text" name="salaryRange" placeholder="Salary Range" required>
+        <input type="text" name="jobType" placeholder="Job Type" required>
+        <button type="submit">Create Job</button>
+    </form>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    © <span id="year"></span> JobPortal. All rights reserved.
+</footer>
+<script>
+    document.getElementById("year").innerText = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Jobs</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="container">
+        <a href="/employee/dashboard" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/employee/dashboard" class="dashboard-btn">← Dashboard</a>
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</div>
+
+<section class="landing">
+    <h1>Available Jobs</h1>
+    <div style="max-width: 800px; margin: auto;">
+        <div th:each="job : ${jobs}" class="card" style="margin-bottom: 1rem; text-align: left;">
+            <h2 th:text="${job.jobTitle}"></h2>
+            <p><strong>Company:</strong> <span th:text="${job.companyName}"></span></p>
+            <p><strong>Location:</strong> <span th:text="${job.jobLocation}"></span></p>
+            <p><strong>Description:</strong> <span th:text="${job.jobDescription}"></span></p>
+            <form th:action="@{'/employee/apply/' + ${job.id}}" method="post">
+                <button type="submit">Apply</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<div class="footer">
+    <p>&copy; 2025 Job Portal. All rights reserved.</p>
+</div>
+</body>
+</html>

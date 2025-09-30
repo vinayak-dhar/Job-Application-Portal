@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Applicants</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; border: 1px solid #e5e7eb; }
+        th { background: #f3f4f6; text-align: left; }
+        select, button { padding: 0.3rem 0.5rem; border-radius: 0.25rem; border: 1px solid #d1d5db; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <a href="/employer/my-jobs" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/employer/my-jobs" class="dashboard-btn">← Dashboard</a>
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="dashboard">
+    <h1 th:text="'Applicants for ' + ${job.jobTitle}">Applicants</h1>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Candidate</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Update</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="app : ${applicants}">
+            <td th:text="${app.id}"></td>
+            <td th:text="${app.employee.name}"></td>   <!-- changed -->
+            <td th:text="${app.employee.email}"></td> <!-- changed -->
+            <td th:text="${app.status}"></td>
+            <td>
+                <form th:action="@{'/employer/application/' + ${app.id} + '/update-status'}" method="post">
+                    <select name="status">
+                        <option value="PENDING" th:selected="${app.status == 'PENDING'}">Pending</option>
+                        <option value="INTERVIEW" th:selected="${app.status == 'INTERVIEW'}">Interview</option>
+                        <option value="HIRED" th:selected="${app.status == 'HIRED'}">Hired</option>
+                        <option value="REJECTED" th:selected="${app.status == 'REJECTED'}">Rejected</option>
+                    </select>
+                    <button type="submit">Update</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<footer class="footer">
+    © <span id="year"></span> JobPortal. All rights reserved.
+</footer>
+<script>
+    document.getElementById("year").innerText = new Date().getFullYear();
+</script>
+</body>
+</html>

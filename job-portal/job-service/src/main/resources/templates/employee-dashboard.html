@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- Navbar -->
+<div class="navbar">
+    <div class="container">
+        <a href="/employee/dashboard" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Cards -->
+<section class="landing">
+    <h1>Employee Dashboard</h1>
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; margin-top: 2rem;">
+        <a href="/employee/jobs" class="card-link">
+            <div class="card">
+                <h2>All Jobs</h2>
+                <p>Browse and apply for available jobs</p>
+            </div>
+        </a>
+        <a href="/employee/applications" class="card-link">
+            <div class="card">
+                <h2>My Applications</h2>
+                <p>Check the status of your applications</p>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- Footer -->
+<div class="footer">
+    <p>&copy; 2025 Job Portal. All rights reserved.</p>
+</div>
+</body>
+</html>
+
+<style>
+    .card {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        width: 250px;
+        text-align: center;
+        transition: transform 0.3s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+</style>

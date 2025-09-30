@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employer Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Dashboard -->
+<div class="dashboard">
+    <h1>Employer Dashboard</h1>
+    <div class="sections">
+        <div class="section-card">
+            <div>
+                <h2>Create Job</h2>
+                <p>Create a new job posting for your company.</p>
+            </div>
+            <button onclick="location.href='/employer/create-job'">Create Job</button>
+        </div>
+        <div class="section-card">
+            <div>
+                <h2>My Jobs</h2>
+                <p>View and manage all jobs you have posted.</p>
+            </div>
+            <button onclick="location.href='/employer/my-jobs'">View Jobs</button>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    © <span id="year"></span> JobPortal. All rights reserved.
+</footer>
+
+<script>
+    document.getElementById("year").innerText = new Date().getFullYear();
+</script>
+</body>
+</html>

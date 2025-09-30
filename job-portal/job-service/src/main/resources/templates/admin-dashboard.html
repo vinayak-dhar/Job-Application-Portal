@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .dashboard {
+            min-height: 100vh;
+            padding: 3rem 1.5rem;
+            background-color: #f9fafb;
+        }
+        .dashboard h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 2.5rem;
+            color: #111827;
+        }
+        .sections {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 1024px;
+            margin: auto;
+        }
+        @media (min-width: 640px) { .sections { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1024px) { .sections { grid-template-columns: repeat(3, 1fr); } }
+        .section-card {
+            background-color: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s;
+        }
+        .section-card:hover { box-shadow: 0 8px 12px rgba(0,0,0,0.15); }
+        .section-card h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #111827; }
+        .section-card p { font-size: 0.9rem; color: #4b5563; }
+        .section-card button {
+            margin-top: 1.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .section-card button:hover { background-color: #1d4ed8; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="logo">JobPortal</a>
+        <div class="nav-links">
+            <a href="/logout" class="login-btn">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="dashboard">
+    <h1>Admin Dashboard</h1>
+    <div class="sections">
+        <div class="section-card">
+            <div>
+                <h2>Employees</h2>
+                <p>View and manage all registered employees.</p>
+            </div>
+            <button onclick="location.href='/admin/manage-users?role=employee'">View Employees</button>
+        </div>
+
+        <div class="section-card">
+            <div>
+                <h2>Employers</h2>
+                <p>View and manage all registered employers.</p>
+            </div>
+            <button onclick="location.href='/admin/manage-users?role=employer'">View Employers</button>
+        </div>
+
+        <div class="section-card">
+            <div>
+                <h2>Job Applications</h2>
+                <p>View all job applications posted on the portal.</p>
+            </div>
+            <button onclick="location.href='/admin/monitor-applications'">View Applications</button>
+        </div>
+
+        <div class="section-card">
+            <div>
+                <h2>Monitor Jobs</h2>
+                <p>View all jobs posted by employers.</p>
+            </div>
+            <button onclick="location.href='/admin/monitor-jobs'">View Jobs</button>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    © <span id="year"></span> JobPortal. All rights reserved.
+</footer>
+<script>document.getElementById("year").innerText = new Date().getFullYear();</script>
+</body>
+</html>
