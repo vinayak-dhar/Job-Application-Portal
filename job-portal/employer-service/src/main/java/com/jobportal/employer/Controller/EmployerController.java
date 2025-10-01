@@ -2,10 +2,13 @@ package com.jobportal.employer.Controller;
 
 import com.jobportal.employer.Entity.Job;
 import com.jobportal.employer.Entity.JobApplication;
+import com.jobportal.employer.Entity.User;
 import com.jobportal.employer.Repository.JobApplicationRepository;
 import com.jobportal.employer.Repository.JobRepository;
+import com.jobportal.employer.Repository.UserRepository;
 import com.jobportal.employer.Service.JobService;
 import jakarta.servlet.http.HttpSession;
+import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,9 @@ public class EmployerController {
     private JobService jobService;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private JobRepository jobRepository;
 
     @Autowired
@@ -31,50 +37,54 @@ public class EmployerController {
     // ------------------ Thymeleaf Views ------------------
 
     @GetMapping("/dashboard")
-    public String employerDashboard(@RequestParam(required = false) String sessionId, HttpSession session) {
-        if (sessionId != null) session.setAttribute("sessionId", sessionId);
-        if (session.getAttribute("sessionId") == null) return AUTH_LOGIN_URL;
+    public String employerDashboard(@RequestParam(required = false) Long userId, HttpSession httpSession) {
+        if (userId != null) httpSession.setAttribute("userId", userId);
+        if (httpSession.getAttribute("userId") == null) return AUTH_LOGIN_URL;
         return "employer-dashboard";
     }
 
     @GetMapping("/create-job")
-    public String createJobForm(@RequestParam(required = false) String sessionId, HttpSession session) {
-        if (sessionId != null) session.setAttribute("sessionId", sessionId);
-        if (session.getAttribute("sessionId") == null) return AUTH_LOGIN_URL;
+    public String createJobForm(HttpSession httpSession) {
+        Long userId = (Long) httpSession.getAttribute("userId");
+        if (userId == null) return AUTH_LOGIN_URL;
         return "create-job";
     }
 
     @PostMapping("/create-job")
     public String createJobSubmit(@ModelAttribute Job job,
-                                  @RequestParam(required = false) String sessionId,
-                                  HttpSession session) {
-        if (sessionId != null) session.setAttribute("sessionId", sessionId);
-        if (session.getAttribute("sessionId") == null) return AUTH_LOGIN_URL;
+                                  HttpSession httpSession) {
+        Long userId = (Long) httpSession.getAttribute("userId");
+        if (userId == null) return AUTH_LOGIN_URL;
 
-        // The employer is inferred from sessionId in your system; set it accordingly
-        // Example: job.setEmployerBySessionId(sessionId);
+        // Set the employer
+        User employer = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+        job.setEmployer(employer);
         jobRepository.save(job);
         return "redirect:/employer/my-jobs";
     }
 
     @GetMapping("/my-jobs")
-    public String myJobs(@RequestParam(required = false) String sessionId, HttpSession session, Model model) {
-        if (sessionId != null) session.setAttribute("sessionId", sessionId);
-        if (session.getAttribute("sessionId") == null) return AUTH_LOGIN_URL;
+    public String myJobs(HttpSession httpSession, Model model) {
+        Long userId = (Long) httpSession.getAttribute("userId");
+        if (userId == null) return AUTH_LOGIN_URL;
 
-        // Fetch jobs according to sessionId mapping (auth-service provides employer info)
-        List<Job> jobs = jobRepository.findAll(); // Adjust with filtering if needed
+        // Fetch jobs posted by this employer
+        User employer = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+
+        List<Job> jobs = jobRepository.findByEmployer(employer);
         model.addAttribute("jobs", jobs);
         return "my-jobs";
     }
 
+
     @GetMapping("/job/{jobId}/applicants")
     public String viewApplicants(@PathVariable Long jobId,
-                                 @RequestParam(required = false) String sessionId,
-                                 HttpSession session,
+                                 HttpSession httpSession,
                                  Model model) {
-        if (sessionId != null) session.setAttribute("sessionId", sessionId);
-        if (session.getAttribute("sessionId") == null) return AUTH_LOGIN_URL;
+        Long userId = (Long) httpSession.getAttribute("userId");
+        if (userId == null) return AUTH_LOGIN_URL;
 
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found!"));
@@ -88,10 +98,9 @@ public class EmployerController {
     @PostMapping("/application/{id}/update-status")
     public String updateApplicantStatusView(@PathVariable Long id,
                                             @RequestParam String status,
-                                            @RequestParam(required = false) String sessionId,
-                                            HttpSession session) {
-        if (sessionId != null) session.setAttribute("sessionId", sessionId);
-        if (session.getAttribute("sessionId") == null) return AUTH_LOGIN_URL;
+                                            HttpSession httpSession) {
+        Long userId = (Long) httpSession.getAttribute("userId");
+        if (userId == null) return AUTH_LOGIN_URL;
 
         JobApplication application = applicationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Application not found!"));
@@ -104,10 +113,9 @@ public class EmployerController {
 
     @PostMapping("/delete-job/{id}")
     public String deleteJob(@PathVariable Long id,
-                            @RequestParam(required = false) String sessionId,
-                            HttpSession session) {
-        if (sessionId != null) session.setAttribute("sessionId", sessionId);
-        if (session.getAttribute("sessionId") == null) return AUTH_LOGIN_URL;
+                            HttpSession httpSession) {
+        Long userId = (Long) httpSession.getAttribute("userId");
+        if (userId == null) return AUTH_LOGIN_URL;
 
         jobRepository.deleteById(id);
         return "redirect:/employer/my-jobs";

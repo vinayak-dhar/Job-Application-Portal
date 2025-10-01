@@ -39,20 +39,22 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String loginSubmit(@ModelAttribute User user, HttpSession session, Model model) {
+    public String loginSubmit(@ModelAttribute User user, Model model) {
         User loggedIn = userService.login(user.getEmail(), user.getPassword());
         if (loggedIn != null) {
             loggedIn.setRole(loggedIn.getRole().toUpperCase());
-            session.setAttribute("user", loggedIn);
+            System.out.println(loggedIn.getEmail());
+            System.out.println(loggedIn.getPassword());
+            System.out.println(loggedIn.getRole());
 
             // Redirect with session ID as query param (for testing)
             switch (loggedIn.getRole()) {
                 case "ADMIN":
-                    return "redirect:http://localhost:8082/admin/dashboard?sessionId=" + session.getId();
+                    return "redirect:http://localhost:8082/admin/dashboard?userId=" + loggedIn.getId();
                 case "EMPLOYER":
-                    return "redirect:http://localhost:8083/employer/dashboard?sessionId=" + session.getId();
+                    return "redirect:http://localhost:8083/employer/dashboard?userId=" + loggedIn.getId();
                 case "EMPLOYEE":
-                    return "redirect:http://localhost:8084/employee/dashboard?sessionId=" + session.getId();
+                    return "redirect:http://localhost:8084/employee/dashboard?userId=" + loggedIn.getId();
             }
         }
         model.addAttribute("error", "Invalid email or password!");
